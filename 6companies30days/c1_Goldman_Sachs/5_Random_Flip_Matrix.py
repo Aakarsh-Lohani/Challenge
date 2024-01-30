@@ -58,5 +58,3 @@ class Solution:
     def reset(self):
         self.total = self.m * self.n
         self.pos = {}
-
-        

@@ -44,7 +44,7 @@ Constraints:
 Each string of startWords and targetWords consists of lowercase English letters only.
 No letter occurs more than once in any string of startWords or targetWords.
 """
-
+import collections
 from typing import List
 class Solution:
     def wordCount(self, startWords: List[str], targetWords: List[str]) -> int:

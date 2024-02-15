@@ -41,23 +41,24 @@ Constraints:
 s consists of lowercase English letters.
 """
 class Solution:
-    def sumScores(self, s: str) -> int:
-        mod = 10**9 + 7
+    def sumScores(self, s):
         n = len(s)
-        power = [1]
-        for _ in range(n):
-            power.append(power[-1] * 26 % mod)
-        hash_val = [0] * (n + 1)
-        for i in range(n - 1, -1, -1):
-            hash_val[i] = (hash_val[i + 1] * 26 + ord(s[i]) - ord('a')) % mod
-        res = 0
-        for i in range(n):
-            l, r = 0, i + 1
-            while l < r:
-                mid = (l + r + 1) // 2
-                if hash_val[0] - hash_val[mid] * power[mid] % mod == hash_val[n - mid]:
-                    l = mid
+
+        dp, ans = [0]*n, [1]*n
+
+        i,j = 1,0 
+
+        while i < n:
+            if s[i] == s[j]:
+                ans[i] += ans[j]
+                dp[i] = j+1 
+                i += 1 
+                j += 1 
+            else:
+                if j:
+                    j = dp[j-1]
                 else:
-                    r = mid - 1
-            res += l
-        return res % mod
+                    i += 1 
+
+        return sum(ans)
+

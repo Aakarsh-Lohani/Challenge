@@ -39,60 +39,33 @@ Constraints:
 1 <= nums[i] <= 30
 """
 from typing import List
+from collections import defaultdict
+import math
 
 class Solution:
     def squareFreeSubsets(self, nums: List[int]) -> int:
-        MOD = 10**9 + 7
-        MAX = 61
-        N = len(nums)
-
-        # Precalculate factorization information.
-        factorization = [[0]*MAX for _ in range(MAX)]
-        for x in range(2, MAX):
-            if factorization[x][x]: continue
-            for y in range(x, MAX, x):
-                factorization[y][x] += 1
-                
-        # Precalculate powers of 2 (mod MOD).
-        power = [1]
-        for _ in range(N):
-            power.append(power[-1] * 2 % MOD)
-
-        # Count number of occurrences of each number.
-        count = [0]*MAX
-        for x in nums:
-            count[x] += 1
-
-        # dp[i] will be the number of subsets with product i.
-        dp = [0]*MAX
-        dp[1] = 1
-
-        for x in range(2, MAX):
-            if not count[x]: continue
+        MOD = 10 ** 9 + 7
+        candidates = set([2, 3, 5, 6, 7, 10, 11, 13, 14, 15, 17, 19, 21, 22, 23, 26, 29, 30])
+        cnt = defaultdict(int)
+        for num in nums:
+            if num in candidates:
+                cnt[num] += 1
+        
+        def count(arr):
+            if not arr:
+                return 1
+            arr1 = []
+            for num in arr[1:]:
+                if math.gcd(num, arr[0]) == 1:
+                    arr1.append(num)
+            return (count(arr[1:]) + cnt[arr[0]] * count(arr1)) % MOD
             
-            # Calculate number of subsets with and without number x.
-            with_x = without_x = 0
-            for v in range(MAX-1, -1, -1):
-                tmp = dp[v] * power[count[x]-1] % MOD
-                if factorization[v][x] <= 1:
-                    with_x += dp[v] * power[count[x]-1] % MOD
-                    with_x %= MOD
-                without_x += tmp
-                without_x %= MOD
-                
-                if factorization[v][x] and v * x < MAX:    # Adding check to prevent out of bound error
-                    dp[v*x] += tmp
-                    dp[v*x] %= MOD
-            
-            dp[x] += with_x
-            dp[x] %= MOD
-
-            # Subtract number of subsets without current number from all subsets.
-            for v in range(MAX):
-                dp[v] += MOD - without_x
-                dp[v] %= MOD
-
-        return sum(dp) % MOD
+        ones = nums.count(1)
+        tmp = 1
+        for _ in range(ones):
+            tmp = (tmp * 2) % MOD
+        return (count(list(cnt)) * tmp - 1) % MOD
+        
 nums = [3,4,4,5]
 solution = Solution()
 result = solution.squareFreeSubsets(nums)

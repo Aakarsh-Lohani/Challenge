@@ -45,42 +45,27 @@ startY <= y1i, y2i <= targetY
 from typing import List
 from heapq import heappush, heappop
 class Solution:
-    def minimumCost(self,start: List[int], target: List[int], specialRoads: List[List[int]]) -> int:
-        points = {tuple(start), tuple(target)}
-        for x1, y1, x2, y2, cost in specialRoads:
-            points.add((x1, y1))
-            points.add((x2, y2))
-        
-        points = list(points)
-        point_to_idx = {point: idx for idx, point in enumerate(points)}
+    def minimumCost(self, start: List[int], target: List[int],
+                          specialRoads: List[List[int]]) -> int:
 
-        N = len(points)
-        dis = [[float('inf')] * N for _ in range(N)]
-        for i in range(N):
-            for j in range(i + 1, N):
-                cost = abs(points[i][0] - points[j][0]) + abs(points[i][1] - points[j][1])
-                dis[i][j] = dis[j][i] = cost
-        
-        for x1, y1, x2, y2, cost in specialRoads:
-            idx1, idx2 = point_to_idx[(x1, y1)], point_to_idx[(x2, y2)]
-            dis[idx1][idx2] = dis[idx2][idx1] = min(cost, dis[idx1][idx2])
+        dist = lambda x, y: abs(x[0]-y[0])+abs(x[1]-y[1])
 
-        frontier = [(0, point_to_idx[tuple(start)])]
-        visited = [False] * N
+        specialRoads = tuple(((x1,y1),(x2,y2),cost) for x1,y1,x2,y2,cost
+                               in specialRoads if dist((x1,y1),(x2,y2)) > cost)
         
-        while frontier:
-            cost, node_idx = heappop(frontier)
-            if visited[node_idx]:
-                continue
+        mn = dist(start, target)
+        seen, heap = set(), [(0,tuple(start))]
+
+        
+        while heap:
+            cost, pos = heappop(heap)
+
+            if pos in seen or cost > mn: continue
+
+            mn = min(mn, cost + dist(pos, target))        #  <-- (a)
+            seen.add(pos)
+
+            for rdBeg, rdEnd, roadCost in specialRoads:   #  <-- (b)
+                heappush(heap, (cost + roadCost + dist(pos,rdBeg), rdEnd))
                 
-            visited[node_idx] = True
-            if points[node_idx] == tuple(target):
-                return cost
-
-            for next_node_idx in range(N):
-                if visited[next_node_idx] or dis[node_idx][next_node_idx] == float('inf'):
-                    continue
-                
-                heappush(frontier, (cost + dis[node_idx][next_node_idx], next_node_idx))
-
-        return -1
+        return mn

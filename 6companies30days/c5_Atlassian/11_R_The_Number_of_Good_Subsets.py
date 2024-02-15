@@ -42,24 +42,32 @@ Constraints:
 1 <= nums.length <= 10^5
 1 <= nums[i] <= 30
 """
+from itertools import combinations
+from collections import Counter, defaultdict
+import math
 from typing import List
+
+def dfs(frequencies, number, good_numbers, result):
+    if number > 30:
+        return
+    frequency = frequencies[number]
+    if frequency:
+        for other_number in list(result.keys()):
+            product = number * other_number
+            if product in good_numbers:
+                result[product] += result[other_number] * frequency
+    dfs(frequencies, number + 1, good_numbers, result)
+
 class Solution:
     def numberOfGoodSubsets(self, nums: List[int]) -> int:
-    MOD = 10**9 + 7
-    freq = [0]*31
-    for num in nums:
-        freq[num] += 1
-    prime = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31]
-    composite = {4: [2, 2], 6: [2, 3], 8: [2, 2, 2], 9: [3, 3], 10: [2, 5], 12: [2, 2, 3], 14: [2, 7], 15: [3, 5], 18: [2, 3, 3], 20: [2, 2, 5], 21: [3, 7], 22: [2, 11], 25: [5, 5], 26: [2, 13], 27: [3, 3, 3], 28: [2, 2, 7], 30: [2, 3, 5]}
-    dp = [0]*(1<<15)
-    dp[0] = 1
-    for mask in range(1<<15):
-        for i in range(15):
-            if mask & (1<<i) == 0:
-                continue
-            if i < 11 and dp[mask^(1<<i)]:
-                dp[mask] += dp[mask^(1<<i)] * freq[prime[i]]
-            if i >= 11 and all((mask & (1<<prime.index(p))) for p in composite[prime[i]]):
-                dp[mask] += dp[mask^(1<<i)] * freq[prime[i]]
-            dp[mask] %= MOD
-    return (sum(dp) * pow(2, freq[1], MOD) - 1) % MOD
+        primes = set([2, 3, 5, 7, 11, 13, 17, 19, 23, 29]) # 10
+        good_numbers = set() # 1024
+        for i in range(1, len(primes) + 1):
+            for combo in combinations(primes, i):
+                good_numbers.add(math.prod(combo))
+        frequencies = Counter(nums)
+        good_subsets = Counter({1 : 1})
+        dfs(frequencies, 2, good_numbers, good_subsets)
+        special_case = 2 ** frequencies[1] # number of 1s if a special case
+        del good_subsets[1]
+        return sum(value * special_case for value in good_subsets.values()) % (10 ** 9 + 7) 

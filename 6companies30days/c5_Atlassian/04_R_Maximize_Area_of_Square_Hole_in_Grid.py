@@ -75,26 +75,16 @@ Constraints:
 All values in hBars are distinct.
 All values in vBars are distinct.
 """
+from itertools import pairwise
 from typing import List
 
 class Solution:
-    def maximizeSquareHoleArea(self, n: int, m: int, hBars: List[int], vBars: List[int]) -> int:
-        # Add the start and end points to the bars
-        hBars = [0] + sorted(hBars) + [n]
-        vBars = [0] + sorted(vBars) + [m]
+    def maximizeSquareHoleArea(self, n: int, m: int, 
+                       hBars: List[int], vBars: List[int]) -> int:
 
-        # Check if there are no horizontal or vertical bars
-        if len(hBars) == 0 or len(vBars) == 0:
-            return 0
-
-        # Find the maximum distance between two consecutive horizontal bars
-        max_h = max(hBars[i+1] - hBars[i] for i in range(len(hBars) - 1))
-
-        # Find the maximum distance between two consecutive vertical bars
-        max_v = max(vBars[i+1] - vBars[i] for i in range(len(vBars) - 1))
-
-        # The side length of the maximum square hole is the maximum of max_h and max_v
-        side_length = max(max_h, max_v)
-
-        # The area of the maximum square hole is the square of the side length
-        return side_length * side_length
+        def find_max(bars):
+            bars.sort()
+            s = ''.join([str(int(y - x == 1)) for x,y in pairwise(bars)])
+            return max(map(len,s.split('0')))+2
+            
+        return pow(min(find_max(hBars), find_max(vBars)),2)

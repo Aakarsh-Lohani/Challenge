@@ -1,5 +1,6 @@
 #https://leetcode.com/problems/number-of-people-aware-of-a-secret/description/
-#correct"""
+
+"""
 2327. Number of People Aware of a Secret
 Medium
 
@@ -40,12 +41,16 @@ Constraints:
 """
 class Solution:
     def peopleAwareOfSecret(self, n: int, delay: int, forget: int) -> int:
-        MOD = 10**9 + 7
-        dp = [0] * (n + 1)
+
+        dp, ct = [0] * n, 0
         dp[0] = 1
-        for i in range(1, n + 1):
-            dp[i] = (dp[i - 1] + dp[max(0, i - delay)] - dp[max(0, i - forget - 1)]) 
-        return dp[n] % MOD
+
+        for i in range(1, n):
+
+            dp[i] = ct + dp[i-delay] - dp[i-forget]
+            ct = dp[i]
+
+        return sum(dp[n-forget:]) % 1000000007
 
 if __name__=="__main__":
     Solution=Solution()

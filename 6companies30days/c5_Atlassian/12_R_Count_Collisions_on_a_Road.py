@@ -43,15 +43,4 @@ directions[i] is either 'L', 'R', or 'S'.
 """
 class Solution:
     def countCollisions(self, directions: str) -> int:
-        collisions = 0
-        moving_right = 0
-        for direction in directions:
-            if direction == 'R':
-                moving_right += 1
-            elif direction == 'L':
-                collisions += moving_right
-                moving_right = 0
-            elif direction == 'S':
-                collisions += moving_right
-
-        return collisions
+        return sum(d!='S' for d in directions.lstrip('L').rstrip('R'))

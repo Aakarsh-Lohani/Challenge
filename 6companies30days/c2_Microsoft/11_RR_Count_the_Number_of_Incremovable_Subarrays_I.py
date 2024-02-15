@@ -39,21 +39,34 @@ Constraints:
 1 <= nums[i] <= 50
 """
 from typing import List
+
 class Solution:
     def incremovableSubarrayCount(self, nums: List[int]) -> int:
-        n = len(nums)
-        inf = float('inf')
-        nums = [-inf] + nums + [inf]
-        dp = [[0] * (n + 2) for _ in range(n + 2)]
-        res = 0
+        def is_increasing(arr: List[int]) -> bool:
+            return all(arr[i] < arr[i+1] for i in range(len(arr) - 1))
 
-        for i in range(n + 1, -1, -1):
-            for j in range(i + 1, n + 2):
-                if nums[j] > nums[i]:    
-                    res += 1
-                    for k in range(i + 1, j):
-                        if nums[k] >= nums[i]:
-                            dp[i][j] = max(dp[i][j], dp[i][k] + 1)
-                    dp[i][j] = max(dp[i][j], 1)
-                    
-        return res
+        count = 0
+        n = len(nums)
+        for i in range(n):
+            for j in range(i, n):
+                new_nums = nums[:i] + nums[j+1:]
+                if is_increasing(new_nums):
+                    count += 1
+        return count
+"""
+from typing import List
+
+class Solution:
+    def incremovableSubarrayCount(self, nums: List[int]) -> int:
+        def is_increasing(arr: List[int]) -> bool:
+            return all(arr[i] < arr[i+1] for i in range(len(arr) - 1))
+
+        count = 0
+        n = len(nums)
+        for i in range(n):
+            for j in range(i, n):
+                new_nums = nums[:i] + nums[j+1:]
+                if is_increasing(new_nums):
+                    count += 1
+        return count
+        """

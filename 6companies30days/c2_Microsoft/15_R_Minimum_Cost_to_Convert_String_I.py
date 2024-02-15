@@ -45,31 +45,51 @@ original[i], changed[i] are lowercase English letters.
 1 <= cost[i] <= 10^6
 original[i] != changed[i]
 """
-
 from typing import List
 from collections import defaultdict
-
+import heapq
 class Solution:
     def minimumCost(self, source: str, target: str, original: List[str], changed: List[str], cost: List[int]) -> int:
-        n = len(source)
-        m = len(target)
-        dp = [[float('inf')] * (m + 1) for _ in range(n + 1)]
-        dp[0][0] = 0
-        change = defaultdict(list)
-        for i in range(len(original)):
-            change[original[i]].append((cost[i], changed[i]))
+        def build(original, changed, costs):
+            graph = defaultdict(lambda: defaultdict(lambda: float("inf")))
+            for ori, ch, cost in zip(original, changed, costs):
+                graph[ori][ch] = min(graph[ori][ch], cost)
+            return graph
+        
+        def dijkstra(graph, start_node, target_node):
+            if start_node not in graph:
+                return float('inf')
+            
+            visited_nodes = set()
+            min_heap = [(0, start_node)]
 
-        for i in range(n + 1):
-            for j in range(m + 1):
-                if j < i:
-                    dp[i][j] = min(dp[i][j], dp[i - 1][j])
-                if j > 0 and source[i - 1] == target[j - 1]:
-                    dp[i][j] = min(dp[i][j], dp[i - 1][j - 1])
-                if i > 0:
-                    for c, t in change[source[i - 1]]:
-                        k = j
-                        while k > 0 and t != target[k - 1]:
-                            k -= 1
-                        dp[i][j] = min(dp[i][j], dp[i - 1][k] + c)
+            while min_heap:
+                cost_to_current, current_node = heapq.heappop(min_heap)
+                if current_node == target_node:
+                    return cost_to_current
+                if current_node in visited_nodes:
+                    continue
+                visited_nodes.add(current_node)
+                for neighbor_node in graph[current_node]:
+                    if neighbor_node not in visited_nodes:
+                        heapq.heappush(min_heap, (cost_to_current + graph[current_node][neighbor_node], neighbor_node))
+            return float('inf')
+        
+        graph = build(original, changed, cost)
+        total_cost = 0
+        memo = {}
 
-        return dp[n][m] if dp[n][m] < float('inf') else -1
+        for s, t in zip(source, target):
+            if s != t:
+                if (s, t) in memo:
+                    cost = memo[(s, t)]
+                else:
+                    cost = dijkstra(graph, s, t)
+                    memo[(s, t)] = cost
+                if cost == float('inf'):
+                    return -1
+                total_cost += cost
+
+        return total_cost
+            
+            

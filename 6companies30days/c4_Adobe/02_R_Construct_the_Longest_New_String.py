@@ -33,17 +33,21 @@ Constraints:
 """
 class Solution:
     def longestString(self, x: int, y: int, z: int) -> int:
-        arr = sorted([(x, "AA"), (y, "BB"), (z, "AB")])
-        res = []
-        while arr:
-            if len(arr) == 1:
-                res.append(arr[0][1] * min(2, arr[0][0]))
-                break
-            use = min(arr[-1][0], 2 if arr[-2][0] * 2 >= arr[-1][0] else arr[-1][0] - arr[-2][0])
-            res.append(arr[-1][1] * use)
-            arr[-1] = (arr[-1][0] - use, arr[-1][1])
-            if arr[-1][0] == 0:
-                arr.pop()
-            arr.sort()
-
-        return len("".join(res))
+        a, b, s = x, y, ''
+        if y < x:
+            for j in range(y):
+                s += 'BB'
+                if x != 0:
+                    s += 'AA'
+                    x -= 1
+        else:
+            for j in range(x):
+                s += 'AA'
+                if y != 0:
+                    s += 'BB'
+                    y -= 1
+        for k in range(z):
+            s += 'AB'
+        if a == b:
+            return len(s)
+        return len(s) + 2

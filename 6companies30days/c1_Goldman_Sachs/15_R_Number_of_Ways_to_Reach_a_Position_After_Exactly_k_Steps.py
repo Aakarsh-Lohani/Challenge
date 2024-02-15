@@ -34,17 +34,32 @@ Constraints:
 1 <= startPos, endPos, k <= 1000
 """
 class Solution:
-    def numberOfWays(self, startPos: int, endPos: int, k: int) -> int:
-        MOD = 10**9 + 7
-        dp = [[0] * (2 * startPos + k + 1) for _ in range(k + 1)]
-        dp[0][startPos] = 1
-
-        for i in range(1, k + 1):
-            for j in range(1, 2 * startPos + k):
-                dp[i][j] = (dp[i - 1][j - 1] + dp[i - 1][j + 1]) 
-
-        return dp[k][endPos] 
+    def numberOfWays(self, a, b, k):
+        if (a - b - k) % 2: return 0
+        return comb(k, (b - a + k) // 2) % (10 ** 9 + 7)
     
 if __name__=="__main__":
     solution=Solution()
     print(solution.numberOfWays(467,113,1000))
+
+""" 
+# Another approach slower than the above one
+class Solution:
+
+    def numberOfWays(self, startPos: int, endPos: int, k: int) -> int:
+        mod = 10**9+7
+        def nCr(n: int, r:int) ->int:
+            if(r == 0):
+                return 1
+            v = [0] * (n+1)
+            v[0] = 1
+            for i in range(1, n+1):
+                for j in range(r, 0, -1):
+                    v[j] = ((v[j] % mod) + (v[j-1] % mod)) % mod
+            return v[r]
+        diff = abs(startPos -  endPos)
+        if(diff > k or diff + k & 1):
+            return 0
+        r = (diff + k)//2
+        return(nCr(k, r))
+"""
